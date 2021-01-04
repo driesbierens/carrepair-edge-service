@@ -13,7 +13,7 @@ public class Employee {
     private Date startContract;
     private Date endContract;
     private Boolean active;
-    private String employeeId;
+    private String employeeID;
 
     public Employee() {
 
@@ -102,12 +102,12 @@ public class Employee {
         this.active = active;
     }
 
-    public String getEmployeeId() {
-        return employeeId;
+    public String getEmployeeID() {
+        return employeeID;
     }
 
-    public void setEmployeeId(String employeeId) {
-        this.employeeId = employeeId;
+    public void setEmployeeID(String employeeID) {
+        this.employeeID = employeeID;
     }
 }
 
