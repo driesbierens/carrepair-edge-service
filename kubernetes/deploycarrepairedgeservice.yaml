@@ -44,7 +44,7 @@ metadata:
 spec:
   type: NodePort
   selector:
-    app: carrepair-edge-service
+    app: carrepair-edge-service-server
   ports:
     - name: http
       port: 8050
