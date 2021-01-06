@@ -79,7 +79,7 @@ public class CarRepairController {
         List<Repair> repairs = responseEntityRepairs.getBody();
 
         //Get customer
-        Customer customer = restTemplate.getForObject("http://" + customerServiceBaseUrl + "customers/{customerId}", Customer.class, customerId);
+        Customer customer = restTemplate.getForObject("http://" + customerServiceBaseUrl + "/customer/uuid/{uuid}", Customer.class, customerId);
 
         for (Repair repair : repairs) {
             //Get employee for repair
@@ -107,7 +107,7 @@ public class CarRepairController {
 
         for (Repair repair : repairs) {
             //Get customer for repair
-            Customer customer = restTemplate.getForObject("http://" + customerServiceBaseUrl + "customers/{customerId}", Customer.class, repair.getCustomerId());
+            Customer customer = restTemplate.getForObject("http://" + customerServiceBaseUrl + "/customer/uuid/{uuid}", Customer.class, repair.getCustomerId());
             //Get employee for repair
             Employee employee = restTemplate.getForObject("http://" + employeeServiceBaseUrl + "/employees/{employeeId}", Employee.class, repair.getEmployeeId());
             //Get list of parts for repair
@@ -169,7 +169,7 @@ public class CarRepairController {
         Repair repair1 = restTemplate.postForObject("http://" + repairServiceBaseUrl + "/repairs",
                 repair, Repair.class);
         assert repair1 != null;
-        Customer customer = restTemplate.getForObject("http://" + customerServiceBaseUrl + "customers/{customerId}", Customer.class, repair1.getCustomerId());
+        Customer customer = restTemplate.getForObject("http://" + customerServiceBaseUrl + "/customer/uuid/{uuid}", Customer.class, repair1.getCustomerId());
         Employee employee = restTemplate.getForObject("http://" + employeeServiceBaseUrl + "/employees/{employeeId}", Employee.class, repair1.getEmployeeId());
         List<Part> parts = new ArrayList<>();
         for (String ean : repair1.getParts()) {
@@ -183,7 +183,7 @@ public class CarRepairController {
     public RepairDetail updateRepair(@RequestBody Repair repair) {
         ResponseEntity<Repair> responseEntityRepair = restTemplate.exchange("http://" + repairServiceBaseUrl + "/repairs", HttpMethod.PUT, new HttpEntity<>(repair), Repair.class);
         Repair repair1 = responseEntityRepair.getBody();
-        Customer customer = restTemplate.getForObject("http://" + customerServiceBaseUrl + "customers/{customerId}", Customer.class, repair1.getCustomerId());
+        Customer customer = restTemplate.getForObject("http://" + customerServiceBaseUrl + "/customer/uuid/{uuid}", Customer.class, repair1.getCustomerId());
         Employee employee = restTemplate.getForObject("http://" + employeeServiceBaseUrl + "/employees/{employeeId}", Employee.class, repair1.getEmployeeId());
         List<Part> parts = new ArrayList<>();
         for (String ean : repair1.getParts()) {
@@ -206,8 +206,8 @@ public class CarRepairController {
     }
 
     @DeleteMapping("/repairs/customer/{customerId}/date/{date}")
-    public ResponseEntity deleteRepair(@RequestParam String customerId, @RequestParam LocalDate date) {
-        restTemplate.delete("http://" + repairServiceBaseUrl + "/repairs/customer/" + customerId + "/date/" + date.toString());
+    public ResponseEntity deleteRepair(@PathVariable String customerId, @PathVariable String date) {
+        restTemplate.delete("http://" + repairServiceBaseUrl + "/repairs/customer/" + customerId + "/date/" + date);
         return ResponseEntity.ok().build();
     }
 
