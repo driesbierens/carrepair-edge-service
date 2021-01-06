@@ -31,7 +31,7 @@ spec:
             - name: CUSTOMER_SERVICE_BASEURL
               value: "customer-service-server:8053"
             - name: PART_SERVICE_BASEURL
-              value: "car-parts-service:8054"
+              value: "car-parts-service-server:8054"
             - name: REPAIR_SERVICE_BASEURL
               value: "repairs-service-server:8052"
 ---
