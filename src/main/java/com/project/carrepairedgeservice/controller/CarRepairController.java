@@ -6,13 +6,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,53 +42,108 @@ public class CarRepairController {
         }
     }
 
-
-//    @GetMapping("/repairs/employee/{employeeId}")
-//    public List<RepairsEmployee> getRepairsByEmployeeId(@PathVariable String employeeId) {
-//        List<RepairDetail> returnList = new ArrayList<>();
-//        //Employee employee = restTemplate.getForObject("http://" + employeeServiceBaseUrl + "/employees/{employeeId}", Employee.class, employeeId);
-//        ResponseEntity<List<Repair>> responseEntityRepairs =
-//                restTemplate.exchange("http://" + "192.168.99.100:31773" + "/repairs/employee/{employeeId}",
-//                        HttpMethod.GET, null, new ParameterizedTypeReference<List<Repair>>() {
-//                        }, employeeId);
-//        List<Repair> repairs = responseEntityRepairs.getBody();
-//        System.out.println(repairs);
-//
-//        return (List<RepairDetail>) new RepairDetail();
-//    }
-
     @GetMapping("/repairs/employee/{employeeId}")
-    public RepairsEmployee getRepairsByEmployeeId(@PathVariable String employeeId) {
+    public List<RepairDetail> getRepairsByEmployeeId(@PathVariable String employeeId) {
+        List<RepairDetail> returnList = new ArrayList();
 
+        ResponseEntity<List<Repair>> responseEntityRepairs =
+                restTemplate.exchange("http://" + repairServiceBaseUrl + "/repairs/employee/{employeeId}",
+                        HttpMethod.GET, null, new ParameterizedTypeReference<List<Repair>>() {}, employeeId);
+        List<Repair> repairs = responseEntityRepairs.getBody();
+
+        //Get employee
         Employee employee = restTemplate.getForObject("http://" + employeeServiceBaseUrl + "/employees/{employeeId}", Employee.class, employeeId);
 
-        ResponseEntity<List<Repair>> responseEntityRepairs =
-                restTemplate.exchange("http://" + repairServiceBaseUrl + "/repairs/employee/e001",
-                        HttpMethod.GET, null, new ParameterizedTypeReference<List<Repair>>() {});
-        List<Repair> repairs = responseEntityRepairs.getBody();
-        List<Customer> customers = new ArrayList<>();
-        repairs.forEach((customerid) -> {
-            Customer customer = restTemplate.getForObject("http://" + customerServiceBaseUrl + "/customer/uuid/c1e6eab90e4c84ef3999558b155c1c727", Customer.class, customerid.getCustomerId());
-            customers.add(customer);
-        });
-        return new RepairsEmployee(employee, responseEntityRepairs.getBody(), customers);
+        for (Repair repair : repairs) {
+            //Get customer
+            Customer customer = restTemplate.getForObject("http://" + customerServiceBaseUrl + "/customer/uuid/{uuid}", Customer.class, repair.getCustomerId());
+            //Get list of parts for repair
+            List<Part> parts = new ArrayList<>();
+            for (String ean : repair.getParts()) {
+                Part part = restTemplate.getForObject("http://" + partServiceBaseUrl + "/parts/part/{eanNumber}", Part.class, ean);
+                parts.add(part);
+            }
+            //Add repair to list
+            returnList.add(new RepairDetail(repair.getId(), customer, employee, repair.getType(), repair.getPrice(), repair.getDate(), repair.getDescription(), parts));
+        }
 
+        return returnList;
     }
 
-    @GetMapping("/repairs/customer/{customerId}")
-    public RepairsCustomer getRepairsByCustomerId(@PathVariable String customerId) {
+    @GetMapping("repairs/customer/{customerId}")
+    public List<RepairDetail> getRepairsByCustomerId(@PathVariable String customerId) {
+        List<RepairDetail> returnList = new ArrayList();
 
-        Customer customer = restTemplate.getForObject("http://" + customerServiceBaseUrl + "/customer/uuid/{uuid}", Customer.class, customerId);
         ResponseEntity<List<Repair>> responseEntityRepairs =
-                restTemplate.exchange("http://" + repairServiceBaseUrl + "/repairs/customer/c001",
-                        HttpMethod.GET, null, new ParameterizedTypeReference<List<Repair>>() {});
+                restTemplate.exchange("http://" + repairServiceBaseUrl + "/repairs/customer/{customerId}", HttpMethod.GET, null, new ParameterizedTypeReference<List<Repair>>(){}, customerId);
         List<Repair> repairs = responseEntityRepairs.getBody();
-        List<Employee> employees = new ArrayList<>();
-        repairs.forEach((employeeid) -> {
-            Employee employee = restTemplate.getForObject("http://" + employeeServiceBaseUrl + "/employees/e0d5e82c5529742c48bb00082f45438fe", Employee.class, employeeid.getEmployeeId());
-            employees.add(employee);
-        });
-        return new RepairsCustomer(customer, repairs, employees);
+
+        //Get customer
+        Customer customer = restTemplate.getForObject("http://" + customerServiceBaseUrl + "customers/{customerId}", Customer.class, customerId);
+
+        for (Repair repair : repairs) {
+            //Get employee for repair
+            Employee employee = restTemplate.getForObject("http://" + employeeServiceBaseUrl + "/employees/{employeeId}", Employee.class, repair.getEmployeeId());
+            //Get list of parts for repair
+            List<Part> parts = new ArrayList<>();
+            for (String ean : repair.getParts()) {
+                Part part = restTemplate.getForObject("http://" + partServiceBaseUrl + "/parts/part/{eanNumber}", Part.class, ean);
+                parts.add(part);
+            }
+            //Add the repair to list
+            returnList.add(new RepairDetail(repair.getId(), customer, employee, repair.getType(), repair.getPrice(), repair.getDate(), repair.getDescription(), parts));
+        }
+
+        return returnList;
+    }
+
+    @GetMapping("repairs/date/{date}")
+    public List<RepairDetail> getRepairsByDate(@PathVariable LocalDate date) {
+        List<RepairDetail> returnList = new ArrayList();
+
+        ResponseEntity<List<Repair>> responseEntityRepairs =
+                restTemplate.exchange("http://" + repairServiceBaseUrl + "/repairs/date/{date}", HttpMethod.GET, null, new ParameterizedTypeReference<List<Repair>>(){}, date.toString());
+        List<Repair> repairs = responseEntityRepairs.getBody();
+
+        for (Repair repair : repairs) {
+            //Get customer for repair
+            Customer customer = restTemplate.getForObject("http://" + customerServiceBaseUrl + "customers/{customerId}", Customer.class, repair.getCustomerId());
+            //Get employee for repair
+            Employee employee = restTemplate.getForObject("http://" + employeeServiceBaseUrl + "/employees/{employeeId}", Employee.class, repair.getEmployeeId());
+            //Get list of parts for repair
+            List<Part> parts = new ArrayList<>();
+            for (String ean : repair.getParts()) {
+                Part part = restTemplate.getForObject("http://" + partServiceBaseUrl + "/parts/part/{eanNumber}", Part.class, ean);
+                parts.add(part);
+            }
+            //Add the repair to list
+            returnList.add(new RepairDetail(repair.getId(), customer, employee, repair.getType(), repair.getPrice(), repair.getDate(), repair.getDescription(), parts));
+        }
+
+        return returnList;
+    }
+
+    @GetMapping("/parts")
+    public List<Part> getAllParts() {
+        ResponseEntity<List<Part>> responseEntityParts =
+                restTemplate.exchange("http://" + partServiceBaseUrl + "/parts/view",
+                        HttpMethod.GET, null, new ParameterizedTypeReference<List<Part>>() {});
+        List<Part> parts = responseEntityParts.getBody();
+        return parts;
+    }
+
+    @GetMapping("/parts/categories")
+    public List<Category> getAllCategories() {
+        ResponseEntity<List<Category>> responseEntityCategories =
+                restTemplate.exchange("http://" + partServiceBaseUrl + "/categories", HttpMethod.GET, null, new ParameterizedTypeReference<List<Category>>() {
+                });
+        List<Category> categories = responseEntityCategories.getBody();
+        return categories;
+    }
+
+    @GetMapping("/parts/categories/category/{categoryId}")
+    public Category getCategoryById (@PathVariable int categoryId) {
+        return restTemplate.getForObject("http://" + partServiceBaseUrl + "/categories/category/{categoryID}", Category.class, categoryId);
     }
 
     @GetMapping("/employees")
@@ -108,6 +163,54 @@ public class CarRepairController {
         List<Customer> customers = responseEntityCustomers.getBody();
         return customers;
     }
+
+    @PostMapping("/repairs")
+    public RepairDetail addRepair(@RequestBody Repair repair) {
+        Repair repair1 = restTemplate.postForObject("http://" + repairServiceBaseUrl + "/repairs",
+                repair, Repair.class);
+        assert repair1 != null;
+        Customer customer = restTemplate.getForObject("http://" + customerServiceBaseUrl + "customers/{customerId}", Customer.class, repair1.getCustomerId());
+        Employee employee = restTemplate.getForObject("http://" + employeeServiceBaseUrl + "/employees/{employeeId}", Employee.class, repair1.getEmployeeId());
+        List<Part> parts = new ArrayList<>();
+        for (String ean : repair1.getParts()) {
+            Part part = restTemplate.getForObject("http://" + partServiceBaseUrl + "/parts/part/{eanNumber}", Part.class, ean);
+            parts.add(part);
+        }
+        return new RepairDetail(repair.getId(), customer, employee, repair.getType(), repair.getPrice(), repair.getDate(), repair.getDescription(), parts);
+    }
+
+    @PutMapping("/repairs")
+    public RepairDetail updateRepair(@RequestBody Repair repair) {
+        ResponseEntity<Repair> responseEntityRepair = restTemplate.exchange("http://" + repairServiceBaseUrl + "/repairs", HttpMethod.PUT, new HttpEntity<>(repair), Repair.class);
+        Repair repair1 = responseEntityRepair.getBody();
+        Customer customer = restTemplate.getForObject("http://" + customerServiceBaseUrl + "customers/{customerId}", Customer.class, repair1.getCustomerId());
+        Employee employee = restTemplate.getForObject("http://" + employeeServiceBaseUrl + "/employees/{employeeId}", Employee.class, repair1.getEmployeeId());
+        List<Part> parts = new ArrayList<>();
+        for (String ean : repair1.getParts()) {
+            Part part = restTemplate.getForObject("http://" + partServiceBaseUrl + "/parts/part/{eanNumber}", Part.class, ean);
+            parts.add(part);
+        }
+        return new RepairDetail(repair.getId(), customer, employee, repair.getType(), repair.getPrice(), repair.getDate(), repair.getDescription(), parts);
+    }
+
+    @PostMapping("/parts")
+    public Part addPart(@RequestBody Part part) {
+        return restTemplate.postForObject("http://" + partServiceBaseUrl + "/parts",
+                part, Part.class);
+    }
+
+    @PutMapping("/parts")
+    public Part updatePart(@RequestBody Part part) {
+        ResponseEntity<Part> responseEntityPart = restTemplate.exchange("http://" + partServiceBaseUrl + "/parts", HttpMethod.PUT, new HttpEntity<>(part), Part.class);
+        return responseEntityPart.getBody();
+    }
+
+    @DeleteMapping("/repairs/customer/{customerId}/date/{date}")
+    public ResponseEntity deleteRepair(@RequestParam String customerId, @RequestParam LocalDate date) {
+        restTemplate.delete("http://" + repairServiceBaseUrl + "/repairs/customer/" + customerId + "/date/" + date.toString());
+        return ResponseEntity.ok().build();
+    }
+
 
 
 

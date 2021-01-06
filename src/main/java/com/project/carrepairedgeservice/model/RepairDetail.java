@@ -1,6 +1,7 @@
 package com.project.carrepairedgeservice.model;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class RepairDetail {
 
@@ -11,12 +12,13 @@ public class RepairDetail {
     private Double price;
     private LocalDate date;
     private String description;
-    private Part[] parts;
+    private List<Part> parts;
 
     public RepairDetail() {
     }
 
-    public RepairDetail(Customer customer, Employee employee, String type, Double price, LocalDate date, String description, Part[] parts) {
+    public RepairDetail(String id, Customer customer, Employee employee, String type, Double price, LocalDate date, String description, List<Part> parts) {
+        this.id = id;
         this.customer = customer;
         this.employee = employee;
         this.type = type;
@@ -82,11 +84,11 @@ public class RepairDetail {
         this.description = description;
     }
 
-    public Part[] getParts() {
+    public List<Part> getParts() {
         return parts;
     }
 
-    public void setParts(Part[] parts) {
+    public void setParts(List<Part> parts) {
         this.parts = parts;
     }
 }
