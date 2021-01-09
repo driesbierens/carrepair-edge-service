@@ -6,12 +6,12 @@ public class Part {
     private String description;
     private String eanNumber;
     private double price;
-    private int categoryID;
+    private String categoryID;
 
     public Part() {
     }
 
-    public Part(String name, String description, String eanNumber, double price, int categoryID) {
+    public Part(String name, String description, String eanNumber, double price, String categoryID) {
         this.name = name;
         this.description = description;
         this.eanNumber = eanNumber;
@@ -59,11 +59,11 @@ public class Part {
         this.price = price;
     }
 
-    public int getCategoryID() {
+    public String getCategoryID() {
         return categoryID;
     }
 
-    public void setCategoryID(int categoryID) {
+    public void setCategoryID(String categoryID) {
         this.categoryID = categoryID;
     }
 }

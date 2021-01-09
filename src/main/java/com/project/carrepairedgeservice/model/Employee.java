@@ -30,6 +30,18 @@ public class Employee {
         this.active = active;
     }
 
+    public Employee(String employeeID, List<WorkingHours> workingHours, Function function, String firstName, String lastName, String phoneNumber, Date startContract, Date endContract, Boolean active) {
+        this.employeeID = employeeID;
+        this.workingHours = workingHours;
+        this.function = function;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+        this.startContract = startContract;
+        this.endContract = endContract;
+        this.active = active;
+    }
+
     public int getId() {
         return id;
     }
@@ -111,53 +123,3 @@ public class Employee {
     }
 }
 
-class WorkingHours {
-    private int id;
-    private Date startTimestamp;
-    private Date stopTimestamp;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public Date getStartTimestamp() {
-        return startTimestamp;
-    }
-
-    public void setStartTimestamp(Date startTimestamp) {
-        this.startTimestamp = startTimestamp;
-    }
-
-    public Date getStopTimestamp() {
-        return stopTimestamp;
-    }
-
-    public void setStopTimestamp(Date stopTimestamp) {
-        this.stopTimestamp = stopTimestamp;
-    }
-}
-
-class Function {
-    private int id;
-    private String functionName;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getFunctionName() {
-        return functionName;
-    }
-
-    public void setFunctionName(String functionName) {
-        this.functionName = functionName;
-    }
-}

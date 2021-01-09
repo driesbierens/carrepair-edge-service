@@ -64,7 +64,7 @@ public class CarRepairController {
                 parts.add(part);
             }
             //Add repair to list
-            returnList.add(new RepairDetail(repair.getId(), customer, employee, repair.getType(), repair.getPrice(), repair.getDate(), repair.getDescription(), parts));
+            returnList.add(new RepairDetail(repair.getRepairUuid(), customer, employee, repair.getType(), repair.getPrice(), repair.getDate(), repair.getDescription(), parts));
         }
 
         return returnList;
@@ -91,14 +91,14 @@ public class CarRepairController {
                 parts.add(part);
             }
             //Add the repair to list
-            returnList.add(new RepairDetail(repair.getId(), customer, employee, repair.getType(), repair.getPrice(), repair.getDate(), repair.getDescription(), parts));
+            returnList.add(new RepairDetail(repair.getRepairUuid(), customer, employee, repair.getType(), repair.getPrice(), repair.getDate(), repair.getDescription(), parts));
         }
 
         return returnList;
     }
 
     @GetMapping("repairs/date/{date}")
-    public List<RepairDetail> getRepairsByDate(@PathVariable LocalDate date) {
+    public List<RepairDetail> getRepairsByDate(@PathVariable String date) {
         List<RepairDetail> returnList = new ArrayList();
 
         ResponseEntity<List<Repair>> responseEntityRepairs =
@@ -117,7 +117,7 @@ public class CarRepairController {
                 parts.add(part);
             }
             //Add the repair to list
-            returnList.add(new RepairDetail(repair.getId(), customer, employee, repair.getType(), repair.getPrice(), repair.getDate(), repair.getDescription(), parts));
+            returnList.add(new RepairDetail(repair.getRepairUuid(), customer, employee, repair.getType(), repair.getPrice(), repair.getDate(), repair.getDescription(), parts));
         }
 
         return returnList;
@@ -142,7 +142,7 @@ public class CarRepairController {
     }
 
     @GetMapping("/parts/categories/category/{categoryId}")
-    public Category getCategoryById (@PathVariable int categoryId) {
+    public Category getCategoryById (@PathVariable String categoryId) {
         return restTemplate.getForObject("http://" + partServiceBaseUrl + "/categories/category/{categoryID}", Category.class, categoryId);
     }
 
@@ -164,6 +164,11 @@ public class CarRepairController {
         return customers;
     }
 
+    @GetMapping("/customers/uuid/{uuid}")
+    public Customer getCustomerByUuid(@PathVariable String uuid) {
+        return restTemplate.getForObject("http://" + customerServiceBaseUrl + "/customer/uuid/{uuid}", Customer.class, uuid);
+    }
+
     @PostMapping("/repairs")
     public RepairDetail addRepair(@RequestBody Repair repair) {
         Repair repair1 = restTemplate.postForObject("http://" + repairServiceBaseUrl + "/repairs",
@@ -176,7 +181,7 @@ public class CarRepairController {
             Part part = restTemplate.getForObject("http://" + partServiceBaseUrl + "/parts/part/{eanNumber}", Part.class, ean);
             parts.add(part);
         }
-        return new RepairDetail(repair.getId(), customer, employee, repair.getType(), repair.getPrice(), repair.getDate(), repair.getDescription(), parts);
+        return new RepairDetail(repair.getRepairUuid(), customer, employee, repair.getType(), repair.getPrice(), repair.getDate(), repair.getDescription(), parts);
     }
 
     @PutMapping("/repairs")
@@ -190,7 +195,7 @@ public class CarRepairController {
             Part part = restTemplate.getForObject("http://" + partServiceBaseUrl + "/parts/part/{eanNumber}", Part.class, ean);
             parts.add(part);
         }
-        return new RepairDetail(repair.getId(), customer, employee, repair.getType(), repair.getPrice(), repair.getDate(), repair.getDescription(), parts);
+        return new RepairDetail(repair.getRepairUuid(), customer, employee, repair.getType(), repair.getPrice(), repair.getDate(), repair.getDescription(), parts);
     }
 
     @PostMapping("/parts")
@@ -205,9 +210,9 @@ public class CarRepairController {
         return responseEntityPart.getBody();
     }
 
-    @DeleteMapping("/repairs/customer/{customerId}/date/{date}")
-    public ResponseEntity deleteRepair(@PathVariable String customerId, @PathVariable String date) {
-        restTemplate.delete("http://" + repairServiceBaseUrl + "/repairs/customer/" + customerId + "/date/" + date);
+    @DeleteMapping("/repairs/uuid/{uuid}")
+    public ResponseEntity deleteRepair(@PathVariable String uuid) {
+        restTemplate.delete("http://" + repairServiceBaseUrl + "/repairs/uuid/" + uuid);
         return ResponseEntity.ok().build();
     }
 

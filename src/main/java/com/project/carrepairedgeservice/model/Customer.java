@@ -25,6 +25,17 @@ public class Customer {
         this.carModel = carModel;
     }
 
+    public Customer(String uuid, String licensePlate, String firstName, String lastName, String email, String phoneNumber, String carBrand, String carModel) {
+        this.uuid = uuid;
+        this.licensePlate = licensePlate;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.carBrand = carBrand;
+        this.carModel = carModel;
+    }
+
     public int getId() {
         return id;
     }
