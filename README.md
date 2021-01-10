@@ -5,9 +5,9 @@ The Car Repair API enables users and applications to easily keep track of car re
 ![architecture](./assets/architecture.png)
 
 #### Team Members
-[Dries Bierens](https://github.com/driesbierens)
-[Aiman Abdulsalam](https://github.com/r0746124)
-[Wout Renkin](https://github.com/Wout-Renkin)
+[Dries Bierens](https://github.com/driesbierens),
+[Aiman Abdulsalam](https://github.com/r0746124),
+[Wout Renkin](https://github.com/Wout-Renkin),
 [Seppe Alaerts](https://github.com/alaertsseppe)
 
 #### Microservices
