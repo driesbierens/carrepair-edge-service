@@ -11,7 +11,7 @@ public class Repair {
     private String date;
     private String description;
     private String[] parts;
-    private String repairUuid = null;
+    private String repairUuid;
 
     public Repair() {
 
