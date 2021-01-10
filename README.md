@@ -19,6 +19,9 @@ Customers:  https://github.com/alaertsseppe/customer-microservice
 
 Employees:  https://github.com/Wout-Renkin/employee-microservice
 
+#### Frontend Angular Application
+https://github.com/r0746124/auto-service
+
 #### Swagger calls
 ##### GET all Customers (/customers)
 ![getAllCustomers](./assets/GETallCustomers.PNG)
