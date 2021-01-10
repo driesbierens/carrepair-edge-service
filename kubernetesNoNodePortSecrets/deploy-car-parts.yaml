@@ -1,0 +1,100 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: car-parts-service-mysql
+  labels:
+    app: car-parts-service
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: car-parts-service
+    tier: mysql
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: car-parts-service-mysql-deployment
+  labels:
+    app: car-parts-service
+spec:
+  selector:
+    matchLabels:
+      app: car-parts-service
+      tier: mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: car-parts-service
+        tier: mysql
+    spec:
+      containers:
+        - image: mysql
+          name: mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-carparts-service-secrets
+                  key: MYSQL_ROOT_PASSWORD
+          ports:
+            - containerPort: 3306
+              name: mysql
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: car-parts-service-server-deployment
+  labels:
+    app: car-parts-service-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: car-parts-service-server
+  template:
+    metadata:
+      labels:
+        app: car-parts-service-server
+    spec:
+      containers:
+        - name: car-parts-service-server
+          image: aimandock/car-parts-service
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8054
+          resources:
+            limits:
+              cpu: 0.2
+              memory: "200Mi"
+          env:
+            - name: MYSQL_DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-carparts-service-secrets
+                  key: MYSQL_DB_USERNAME
+            - name: MYSQL_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-carparts-service-secrets
+                  key: MYSQL_DB_PASSWORD
+            - name: MYSQL_DB_HOST
+              value: "car-parts-service-mysql"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: car-parts-service-server
+  labels:
+    app: car-parts-service-server
+spec:
+  selector:
+    app: car-parts-service-server
+  ports:
+    - name: http
+      port: 8054
+      targetPort: 8054

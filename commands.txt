@@ -1,0 +1,14 @@
+Example call:
+192.168.99.100:31111/employees
+
+How to deploy stack with secrets:
+Step 1 - create secret files:
+kubectl create secret generic postgres-employee-service-secrets --from-literal=POSTGRES_USER=postgres --from-literal=POSTGRES_DB=employees --from-literal=POSTGRES_PASSWORD=abc123
+kubectl create secret generic postgres-customer-service-secrets --from-literal=POSTGRES_USER=postgres --from-literal=POSTGRES_DB=customer --from-literal=POSTGRES_PASSWORD=abc123
+kubectl create secret generic mysql-carparts-service-secrets --from-literal=MYSQL_DB_USERNAME=root --from-literal=MYSQL_DB_PASSWORD=abc123 --from-literal=MYSQL_ROOT_PASSWORD=abc123
+
+step 2 - deploy our pods/services/deployments:
+kubectl apply -f ./kubernetesNoNodePortSecrets/deploymentcustomerservice.yaml;kubectl apply -f ./kubernetesNoNodePortSecrets/deployemployeeservice.yaml;kubectl apply -f ./kubernetesNoNodePortSecrets/deployrepairsservice.yaml;kubectl apply -f ./kubernetesNoNodePortSecrets/deploy-car-parts.yaml;kubectl apply -f ./kubernetesNoNodePortSecrets/deploycarrepairedgeservice.yaml;
+
+Step 3 - our nodeport on the edge service is 31111
+192.168.99.100:31111/employees
